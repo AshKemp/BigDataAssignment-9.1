@@ -1,0 +1,33 @@
+Problem Statement
+1. What is the total amount of petrol in volume sold by every distributer?
+2. Which are the top 10 distributers ID's for selling petrol? Also display the amount of
+petrol sold in volume.
+3. List 10 years where consumption of petrol is more with the distributer id who sold it.
+4. Find the distributer name who sold petrol in least amount.
+
+1. grunt> tot_amt = LOAD 'hdfs://localhost:9000/pig_data/dataset.txt'
+USING PigStorage(',')
+as (id:int,name:chararray,buy_rate:int,sell_rate:int,vin:int,vout:int,year:date);
+B = FOREACH tot_amt GENERATE sell_rate,vin;
+dump B
+
+2. grunt> tot_amt = LOAD 'hdfs://localhost:9000/pig_data/dataset.txt'
+USING PigStorage(',')
+as (id:int,name:chararray,buy_rate:int,sell_rate:int,vin:int,vout:int,year:date); 
+data_top = FOREACH tot_amt {
+top = TOP(10,0,id);
+GENERATE top;
+}
+dump data_top;
+B = FOREACH tot_amt GENERATE sell_rate,vin;
+dump B
+
+3. years = LIMIT year 10;
+B = FOREACH years GENERATE vin>id
+dump B
+
+4. dname = FOREACH tot_amt GENERATE name
+groupdname = Group dname All;
+dump groupdname
+min_sell_petrol = foreach groupdname GENERATE MIN(sell-rate);
+
